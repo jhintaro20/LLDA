@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Laguna Lake Water Quality Monitoring</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- LEAFLET -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- CHART -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: #f0f4f8; color: #333; }
+
+    /* HEADER */
+    .header {
+      background: #2196f3;
+      color: white;
+      padding: 15px 20px;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /* MAIN CONTAINER */
+    .main-container { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 10px; 
+      padding: 10px; 
+    }
+
+    /* LEFT: Station List */
+    .sidebar {
+      flex: 1 1 200px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      padding: 15px;
+      min-width: 100px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .sidebar h2 { font-size: 16px; margin-bottom: 10px; color: #2196f3; }
+    .sidebar ul { list-style: none; padding: 0; }
+    .sidebar li { padding: 8px; cursor: pointer; border-bottom: 1px solid #eee; border-radius: 5px; }
+    .sidebar li:hover { background: #e3f2fd; }
+
+    /* CENTER: Map */
+    .map-card {
+      flex: 2 1 500px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      position: relative;
+      min-height: 400px;
+      padding: 10px;
+    }
+    #map { width: 100%; height: 100%; border-radius: 10px; }
+    #paramSelect {
+      position: absolute;
+      top: 10px; right: 10px;
+      padding: 6px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      z-index: 1000;
+      background: white;
+    }
+    .legend {
+      position: absolute;
+      bottom: 10px; right: 10px;
+      background: white;
+      padding: 6px;
+      border-radius: 5px;
+      font-size: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* RIGHT: Station Details */
+    .details-card {
+      flex: 1 1 250px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      padding: 15px;
+      min-width: 250px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .details-card h3 { color: #2196f3; margin-bottom: 10px; }
+
+    /* BOTTOM: Panels */
+    .bottom-panels { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 20px; 
+      width: 100%; 
+      padding: 0 20px 20px 20px;
+    }
+    .panel {
+      flex: 1 1 400px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      padding: 15px;
+      min-height: 300px;
+    }
+    .panel h3 { color: #2196f3; margin-bottom: 10px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+    th { background: #e3f2fd; }
+
+    /* RESPONSIVE */
+    @media (max-width: 1000px) {
+      .main-container { flex-direction: column; }
+      .bottom-panels { flex-direction: column; }
+      .panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">Laguna Lake Water Quality Monitoring System</div>
+
+<div class="main-container">
+  <!-- Station list -->
+  <div class="sidebar">
+    <h2>Monitoring Stations</h2>
+    <ul id="stationList"></ul>
+  </div>
+
+  <!-- Map -->
+  <div class="map-card">
+    <select id="paramSelect">
+    <option value="do">Dissolved Oxygen</option>
+    <option value="pH">pH</option>
+    <option value="bod">Biochemical Oxygen Demand (BOD)</option>
+    <option value="cod">Chemical Oxygen Demand (COD)</option>
+    <option value="turbidity">Turbidity</option>
+    <option value="temperature">Temperature (°C)</option>
+    <option value="nitrate">Nitrate (mg/L)</option>
+    <option value="phosphate">Phosphate (mg/L)</option>
+    </select>
+    <div id="map"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <!-- Station details -->
+  <div class="details-card">
+    <h3 id="stationName">Details</h3>
+    <div id="stationDetails">Click a station from the list to view readings.</div>
+  </div>
+</div>
+
+<!-- Bottom panels -->
+<div class="bottom-panels">
+  <div class="panel">
+    <h3>Quarterly Readings</h3>
+    <table>
+      <thead>
+        <tr>
+      <th>Date</th>
+      <th>pH</th>
+      <th>DO (mg/L)</th>
+      <th>BOD (mg/L)</th>
+      <th>COD (mg/L)</th>
+      <th>Temperature (°C)</th>
+      <th>Nitrate (mg/L)</th>
+      <th>Phosphate (mg/L)</th>
+      <th>Turbidity</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div class="panel">
+    <h3>Historical Trends</h3>
+    <canvas id="chart"></canvas>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

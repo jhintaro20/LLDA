@@ -1,0 +1,167 @@
+[
+  {
+    "id": "stn_i",
+    "name": "I (Central West Bay)",
+    "lat": 14.41421112256171,
+    "lng": 121.18390101129478,
+    "readings": [
+      { "date": "2025-01", "do": 7, "bod": 2, "fecal_coliform": 92, "ph": 7, "tss": 56 },
+      { "date": "2025-02", "do": 7, "bod": 3, "fecal_coliform": 92, "ph": 7, "tss": 32 },
+      { "date": "2025-03", "do": 8, "bod": 2, "fecal_coliform": 48, "ph": 8, "tss": 29 }
+    ]
+  },
+  {
+    "id": "stn_ii",
+    "name": "II (East Bay)",
+    "lat": 14.27155167411928,
+    "lng": 121.33824627493601,
+    "readings": [
+      { "date": "2025-01", "do": 8, "bod": 1, "fecal_coliform": 44, "ph": 7, "tss": 117 },
+      { "date": "2025-02", "do": 8, "bod": 3, "fecal_coliform": 81, "ph": 7, "tss": 16 },
+      { "date": "2025-03", "do": 8, "bod": 2, "fecal_coliform": 35, "ph": 8, "tss": 17 }
+    ]
+  },
+  {
+    "id": "stn_iv",
+    "name": "IV (Central Bay)",
+    "lat": 14.382473907221396,
+    "lng": 121.28573124684709,
+    "readings": [
+      { "date": "2025-01", "do": 8, "bod": 2, "fecal_coliform": 24, "ph": 7, "tss": 39 },
+      { "date": "2025-02", "do": 8, "bod": 2, "fecal_coliform": 40, "ph": 8, "tss": 34 },
+      { "date": "2025-03", "do": 8, "bod": 2, "fecal_coliform": 30, "ph": 8, "tss": 22 }
+    ]
+  },
+  {
+    "id": "stn_v",
+    "name": "V (Northern West Bay)",
+    "lat": 14.485714396175439,
+    "lng": 121.14656642241329,
+    "readings": [
+      { "date": "2025-01", "do": 7, "bod": 1, "fecal_coliform": 34, "ph": 7, "tss": 121 },
+      { "date": "2025-02", "do": 7, "bod": 2, "fecal_coliform": 54, "ph": 7, "tss": 25 },
+      { "date": "2025-03", "do": 8, "bod": 2, "fecal_coliform": 54, "ph": 8, "tss": 25 }
+    ]
+  },
+  {
+    "id": "south_bay",
+    "name": "VIII South Bay",
+    "lat": 14.224724035727121,
+    "lng": 121.22586411482621,
+    "readings": [
+      { "date": "2025-01", "do": 7, "bod": 2, "fecal_coliform": 86, "ph": 7, "tss": 162 },
+      { "date": "2025-02", "do": 8, "bod": 2, "fecal_coliform": 90, "ph": 7, "tss": 19 },
+      { "date": "2025-03", "do": 8, "bod": 2, "fecal_coliform": 55, "ph": 8, "tss": 23 }
+    ]
+  },
+  {
+    "id": "taytay",
+    "name": "XIII Taytay",
+    "lat": 14.507576916221154,
+    "lng": 121.11715800668293,
+    "readings": [
+      { "date": "2025-01", "do": 7, "bod": 2, "fecal_coliform": 235, "ph": 7, "tss": 144 },
+      { "date": "2025-02", "do": 7, "bod": 2, "fecal_coliform": 183, "ph": 7, "tss": 23 },
+      { "date": "2025-03", "do": 7, "bod": 3, "fecal_coliform": 113, "ph": 7, "tss": 76 }
+    ]
+  },
+  {
+    "id": "stn_xv",
+    "name": "XV (San Pedro West Bay)",
+    "lat": 14.369504141006644,
+    "lng": 121.0946700131737,
+    "readings": [
+      { "date": "2025-01", "do": 7, "bod": 2, "fecal_coliform": 49, "ph": 7, "tss": 67 },
+      { "date": "2025-02", "do": 7, "bod": 2, "fecal_coliform": 95, "ph": 7, "tss": 15 },
+      { "date": "2025-03", "do": 7, "bod": 7, "fecal_coliform": 67, "ph": 8, "tss": 28 }
+    ]
+  },
+  {
+    "id": "stn_xvi",
+    "name": "XVI (Sta. Rosa West Bay)",
+    "lat": 14.333147114199818,
+    "lng": 121.13025703035385,
+    "readings": [
+      { "date": "2025-01", "do": 8, "bod": 1, "fecal_coliform": 58, "ph": 7, "tss": 22 },
+      { "date": "2025-02", "do": 7, "bod": 2, "fecal_coliform": 58, "ph": 7, "tss": 40 },
+      { "date": "2025-03", "do": 7, "bod": 1, "fecal_coliform": 49, "ph": 7, "tss": null }
+    ]
+  },
+  {
+    "id": "stn_xvii",
+    "name": "XVII (Fish Sanctuary Central Bay)",
+    "lat": 14.289261822878046,
+    "lng": 121.26807398347353,
+    "readings": [
+      { "date": "2025-01", "do": 8, "bod": 1, "fecal_coliform": 24, "ph": 7, "tss": 54 },
+      { "date": "2025-02", "do": 8, "bod": 3, "fecal_coliform": 25, "ph": 7, "tss": 23 },
+      { "date": "2025-03", "do": 8, "bod": 2, "fecal_coliform": 19, "ph": 8, "tss": 27 }
+    ]
+  },
+  {
+    "id": "pagsanjan",
+    "name": "Pagsanjan (East Bay)",
+    "lat": 14.312430684246365,    
+    "lng": 121.3861147151822,
+    "readings": [
+      { "date": "2025-01", "do": 8, "bod": 2, "fecal_coliform": 32, "ph": 7, "tss": 90 },
+      { "date": "2025-02", "do": 8, "bod": 2, "fecal_coliform": 32, "ph": 7, "tss": 17 },
+      { "date": "2025-03", "do": 8, "bod": 2, "fecal_coliform": 33, "ph": 8, "tss": 22 }
+    ]
+  },
+  {
+    "id": "stn_xix",
+    "name": "XIX (Muntinlupa)",
+    "lat": 14.417382028753835,
+    "lng": 121.09691153224918,
+    "readings": [
+      { "date": "2025-01", "do": 8, "bod": 2, "fecal_coliform": 93, "ph": 7, "tss": 80 },
+      { "date": "2025-02", "do": 8, "bod": 3, "fecal_coliform": 110, "ph": 7, "tss": 50 },
+      { "date": "2025-03", "do": 8, "bod": 2, "fecal_coliform": 74, "ph": 8, "tss": 39 }
+    ]
+  },
+  {
+    "id": "stn_xx",
+    "name": "XX (GEMS)",
+    "lat": 14.42771376611644,  
+    "lng": 121.22471968169242,
+    "readings": [
+      { "date": "2025-01", "do": 7, "bod": 2, "fecal_coliform": 113, "ph": 7, "tss": 56 },
+      { "date": "2025-02", "do": 7, "bod": 3, "fecal_coliform": 83, "ph": 7, "tss": 24 },
+      { "date": "2025-03", "do": 7, "bod": 2, "fecal_coliform": 84, "ph": 8, "tss": 29 }
+    ]
+  },
+  {
+    "id": "stn_xxi",
+    "name": "XXI (Cardona Talim)",
+    "lat": 14.337739778981799, 
+    "lng": 121.29119938340153,
+    "readings": [
+      { "date": "2025-01", "do": 8, "bod": 2, "fecal_coliform": 89, "ph": 7, "tss": 37 },
+      { "date": "2025-02", "do": 8, "bod": 3, "fecal_coliform": 38, "ph": 8, "tss": 16 },
+      { "date": "2025-03", "do": 8, "bod": 2, "fecal_coliform": 18, "ph": 8, "tss": 20 }
+    ]
+  },
+  {
+    "id": "stn_xxii",
+    "name": "XXII (Jala-Jala)",
+    "lat": 14.236889714053476,  
+    "lng": 121.26883236818492,
+    "readings": [
+      { "date": "2025-01", "do": 8, "bod": 3, "fecal_coliform": 104, "ph": 7, "tss": 84 },
+      { "date": "2025-02", "do": 8, "bod": 2, "fecal_coliform": 64, "ph": 7, "tss": 24 },
+      { "date": "2025-03", "do": 8, "bod": 8, "fecal_coliform": 35, "ph": 8, "tss": 29 }
+    ]
+  },
+  {
+    "id": "lumban",
+    "name": "XXIII (Lumban)",
+    "lat": 14.321486183107794,  
+    "lng": 121.41390617969302,
+    "readings": [
+      { "date": "2025-01", "do": 8, "bod": 2, "fecal_coliform": 172, "ph": 7, "tss": 25 },
+      { "date": "2025-02", "do": 7, "bod": 2, "fecal_coliform": 163, "ph": 7, "tss": 9 },
+      { "date": "2025-03", "do": 7, "bod": 2, "fecal_coliform": 104, "ph": 7, "tss": 4 }
+    ]
+  }
+]
