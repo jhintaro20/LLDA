@@ -140,12 +140,12 @@ function selectStation(s) {
   stationDetails.innerHTML = `
     <div class="section-title">Water Parameters</div>
     <div class="metric-grid">
-      ${metric("💧","DO",r.do)}
-      ${metric("🧪","pH",r.ph)}
-      ${metric("🧬","BOD",r.bod)}
-      ${metric("🔥","COD",r.cod)}
-      ${metric("🌫️","Turbidity",r.turbidity)}
-      ${metric("🌡️","Temperature",r.temp)}
+      ${metric("💧","DO", r.do, "Dissolved Oxygen (DO) measures the amount of oxygen available in water. Higher values indicate better conditions for aquatic life.")}
+      ${metric("🧪","pH", r.ph, "pH indicates how acidic or alkaline the water is. Ideal freshwater pH ranges from 6.5 to 8.5.")}
+      ${metric("🧬","BOD", r.bod, "Biochemical Oxygen Demand (BOD) measures the amount of oxygen required by microorganisms to decompose organic matter.")}
+      ${metric("🔥","COD", r.cod, "Chemical Oxygen Demand (COD) indicates the amount of oxygen required to chemically oxidize pollutants in water.")}
+      ${metric("🌫️","Turbidity", r.turbidity, "Turbidity measures water clarity. High turbidity reduces light penetration and affects aquatic ecosystems.")}
+      ${metric("🌡️","Temperature", r.temp, "Water temperature affects dissolved oxygen levels and aquatic organism metabolism.")}
     </div>
 
     <div class="section-title">Water Quality Trend</div>
@@ -153,8 +153,8 @@ function selectStation(s) {
 
     <div class="section-title">Nutrients</div>
     <div class="metric-grid">
-      ${metric("🌿","Nitrate",r.nitrate)}
-      ${metric("🧫","Phosphate",r.phosphate)}
+      ${metric("🌿","Nitrate", r.nitrate, "Nitrate is a nutrient that supports plant growth but can cause eutrophication at high levels.")}
+      ${metric("🧫","Phosphate", r.phosphate, "Phosphate is a nutrient that can trigger algal blooms when present in excess.")}
     </div>
 
     <div class="section-title">Nutrient Trend</div>
@@ -218,16 +218,38 @@ monthSelectMobile.onchange = e => {
 };
 
 // HELPERS
-function metric(icon,label,val){
-  return `<div class="metric-card">
-    <div class="metric-icon">${icon}</div>
-    <small>${label}</small>
-    <strong>${val}</strong>
-  </div>`;
+function metric(icon, label, val, info = "") {
+  return `
+    <div class="metric-card" data-tooltip="${info}">
+      <div class="metric-icon">${icon}</div>
+      <small>${label}</small>
+      <strong>${val}</strong>
+    </div>
+  `;
 }
+
 
 function color(v){
   if(v >= 8) return "#16a34a";
   if(v >= 6) return "#f59e0b";
   return "#dc2626";
 }
+// INFO PANEL TOGGLE 
+document.addEventListener("DOMContentLoaded", () => {
+  const infoBtn = document.getElementById("infoBtn");
+  const infoPanel = document.getElementById("infoPanel");
+  const infoClose = document.getElementById("infoClose");
+
+  if (!infoBtn || !infoPanel || !infoClose) return;
+
+  infoBtn.addEventListener("click", () => {
+    infoPanel.style.display =
+      infoPanel.style.display === "block" ? "none" : "block";
+  });
+
+  infoClose.addEventListener("click", () => {
+    infoPanel.style.display = "none";
+  });
+});
+
+
