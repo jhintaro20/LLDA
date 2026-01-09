@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>LLDA Water Monitoring System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <!-- App CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-
 <header class="app-header">
   <div class="header-inner">
-    <img src="llda-logo.png" alt="LLDA Logo" class="header-logo">
-
+    <img src="assets/llda-logo.png" class="header-logo" alt="LLDA Logo">
     <div class="header-text">
-      <h1>Interactive Map of Laguna Lake</h1>
-      <p>Laguna Lake Development Authority (LLDA) -  Water Quality Monitoring</p>
+      <h1>Water Monitoring System</h1>
+      <p>Laguna de Bay — LLDA Water Quality Monitoring (Q1 2025)</p>
     </div>
   </div>
-
-  <div class="info-icon" id="infoBtn" title="About this system">ℹ️</div>
+  <div class="info-icon" id="infoBtn">ℹ️</div>
 </header>
 
 <div class="app-layout">
 
-  <!-- LEFT -->
+  <!-- LEFT (DESKTOP STATION LIST) -->
   <aside class="sidebar left desktop-only">
     <h3>Monitoring Stations</h3>
     <ul id="stationList"></ul>
@@ -35,114 +35,77 @@
   <!-- CENTER -->
   <main class="main-content">
 
-    <!-- MOBILE CONTROLS -->
-    <div class="mobile-controls mobile-only">
-      <label>Station</label>
-      <select id="stationSelect"></select>
-
-      <label>Water Parameter</label>
-      <select id="parameterSelectMobile"></select>
-
-      <label>Month</label>
-      <select id="monthSelectMobile"></select>
+    <!-- MOBILE STATION DROPDOWN -->
+    <div class="mobile-only mobile-station-select">
+      <label for="stationDropdown">Select Station</label>
+      <select id="stationDropdown"></select>
     </div>
 
     <div class="map-wrapper">
       <div id="map"></div>
 
-      <!-- DESKTOP CONTROLS -->
-      <div class="map-controls desktop-only">
-        <label>Water Parameter</label>
-        <select id="parameterSelect"></select>
+      <!-- MAP CONTROLS -->
+      <div class="map-controls">
+        <label>Parameter</label>
+        <select id="parameterSelect">
+          <option value="do">Dissolved Oxygen</option>
+          <option value="ph">pH</option>
+          <option value="bod">BOD</option>
+          <option value="cod">COD</option>
+          <option value="turbidity">Turbidity</option>
+          <option value="temp">Temperature</option>
+          <option value="nitrate">Nitrate</option>
+          <option value="phosphate">Phosphate</option>
+        </select>
 
         <label>Month</label>
-        <select id="monthSelect"></select>
+        <select id="monthSelect">
+          <option value="0">January 2025</option>
+          <option value="1">February 2025</option>
+          <option value="2">March 2025</option>
+        </select>
       </div>
 
-      <div id="legend" class="map-legend"></div>
+      <!-- LEGEND -->
+      <div class="map-legend">
+        <div class="legend-item"><span class="legend-dot good"></span> Good</div>
+        <div class="legend-item"><span class="legend-dot moderate"></span> Moderate</div>
+        <div class="legend-item"><span class="legend-dot poor"></span> Poor</div>
+      </div>
     </div>
   </main>
 
-  <!-- RIGHT -->
+  <!-- RIGHT PANEL -->
   <aside class="sidebar right">
     <div class="right-panel">
-
       <div class="station-header">
-        <h2 id="stationName">Station Details</h2>
+        <h2 id="stationName">Select a station</h2>
       </div>
-
-      <div id="stationDetails" class="right-content">
-        Select a station
-      </div>
+      <div id="stationDetails" class="right-content"></div>
 
       <div class="footer-credit">
-      Prepared by <strong>Michelle Ocmer</strong> and <strong>Melo Moyo</strong>
+        Prepared by <strong>Michelle</strong> and <strong>Melo</strong>
       </div>
-
     </div>
   </aside>
 
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="app.js"></script>
-
-<!-- INFO BOX -->
+<!-- INFO PANEL -->
 <div class="info-panel" id="infoPanel">
   <button class="info-close" id="infoClose">×</button>
-
   <h2>About This System</h2>
-
   <p>
-    This interactive dashboard presents water quality monitoring data
-    collected by the <strong>Laguna Lake Development Authority (LLDA)</strong>
-    for Laguna de Bay.
+    This interactive dashboard visualizes water quality monitoring data
+    collected by the Laguna Lake Development Authority (LLDA).
   </p>
-
-  <h3>About the Water Parameters</h3>
-  <p>
-    The system uses key water quality parameters to help users understand the
-    condition of Laguna de Bay and assess its suitability for aquatic life,
-    fisheries, and environmental management.
+  <p class="info-note">
+    Designed for educational and research visualization.
   </p>
+</div>
 
-  <ul>
-  <li>
-    <strong>Dissolved Oxygen (DO):</strong> Indicates how much oxygen is available
-    in the water. Higher DO levels generally support healthier aquatic organisms.
-  </li>
-  <li>
-    <strong>pH Level:</strong> Shows whether the water is acidic or alkaline.
-    Extreme pH levels can stress or harm aquatic life.
-  </li>
-  <li>
-    <strong>BOD & COD:</strong> Measure the amount of organic and chemical
-    pollutants in the water. Higher values may indicate pollution and reduced
-    water quality.
-  </li>
-  <li>
-    <strong>Turbidity:</strong> Reflects water clarity. High turbidity can limit
-    sunlight penetration and affect aquatic ecosystems.
-  </li>
-  <li>
-    <strong>Temperature:</strong> Influences dissolved oxygen levels and the
-    metabolism of aquatic organisms.
-  </li>
-  <li>
-    <strong>Nitrate & Phosphate:</strong> Nutrients that support plant growth but
-    may cause algal blooms and eutrophication when present in excess.
-  </li>
-</ul>
-
-<p class="info-note">
-  By visualizing these parameters on the map and charts, the system helps users
-  quickly identify areas of concern and compare water quality conditions across
-  monitoring stations.
-</p>
-
-
-
+<!-- Scripts -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
-
