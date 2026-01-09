@@ -1,71 +1,10 @@
-// MAP
 const map = L.map("map").setView([14.35, 121.25], 11);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-setTimeout(() => map.invalidateSize(), 300);
-window.addEventListener("resize", () => setTimeout(() => map.invalidateSize(), 200));
 
-function updateLegend() {
-  const legend = document.getElementById("legend");
-  legend.innerHTML = `
-    <div class="legend-item">
-      <span class="legend-dot good"></span> Good
-    </div>
-    <div class="legend-item">
-      <span class="legend-dot moderate"></span> Moderate
-    </div>
-    <div class="legend-item">
-      <span class="legend-dot poor"></span> Poor
-    </div>
-  `;
-}
-
-// call once on load
-updateLegend();
-
-// STATE
 let stations = [];
 let markers = [];
-let selectedStation = null;
-let highlight = null;
 let currentParam = "do";
 let currentMonth = 0;
-let paramChart = null;
-let nutrientChart = null;
-
-// DROPDOWNS
-const paramHTML = `
-<option value="do">Dissolved Oxygen</option>
-<option value="ph">pH</option>
-<option value="bod">BOD</option>
-<option value="cod">COD</option>
-<option value="turbidity">Turbidity</option>
-<option value="temp">Temperature</option>
-`;
-
-const monthHTML = `
-<option value="0">January 2025</option>
-<option value="1">February 2025</option>
-<option value="2">March 2025</option>
-`;
-
-parameterSelect.innerHTML = paramHTML;
-monthSelect.innerHTML = monthHTML;
-parameterSelectMobile.innerHTML = paramHTML;
-monthSelectMobile.innerHTML = monthHTML;
-
-// LEGEND
-legend.innerHTML = `
-<div class="legend-item"><span class="legend-dot good"></span>Good</div>
-<div class="legend-item"><span class="legend-dot moderate"></span>Moderate</div>
-<div class="legend-item"><span class="legend-dot poor"></span>Poor</div>
-`;
-
-// LOAD BOUNDARY
-fetch("data/boundary.geojson")
-  .then(r => r.json())
-  .then(g => L.geoJSON(g, {
-    style: { color:"#2563eb", weight:2, fillOpacity:0.15 }
-  }).addTo(map));
 
 // LOAD STATIONS
 fetch("data/station.json")
@@ -77,30 +16,34 @@ fetch("data/station.json")
     drawMarkers();
   });
 
-// STATION LIST
+// DESKTOP LIST
 function buildList() {
-  stationList.innerHTML = "";
-  stations.forEach(s => {
+  const ul = document.getElementById("stationList");
+  ul.innerHTML = "";
+  stations.forEach(st => {
     const li = document.createElement("li");
-    li.textContent = s.name;
-    li.onclick = () => selectStation(s);
-    stationList.appendChild(li);
+    li.textContent = st.name;
+    li.onclick = () => selectStation(st);
+    ul.appendChild(li);
   });
 }
 
-// MOBILE STATION DROPDOWN
+// MOBILE DROPDOWN
 function buildMobileDropdown() {
-  stationSelect.innerHTML = "<option>Select station</option>";
-  stations.forEach(s => {
-    const o = document.createElement("option");
-    o.value = s.name;
-    o.textContent = s.name;
-    stationSelect.appendChild(o);
+  const dropdown = document.getElementById("stationDropdown");
+  if (!dropdown) return;
+
+  dropdown.innerHTML = "";
+  stations.forEach(st => {
+    const opt = document.createElement("option");
+    opt.value = st.id;
+    opt.textContent = st.name;
+    dropdown.appendChild(opt);
   });
 
-  stationSelect.onchange = () => {
-    const s = stations.find(x => x.name === stationSelect.value);
-    if (s) selectStation(s);
+  dropdown.onchange = e => {
+    const st = stations.find(s => s.id === e.target.value);
+    if (st) selectStation(st);
   };
 }
 
@@ -109,147 +52,57 @@ function drawMarkers() {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
-  stations.forEach(s => {
-    const v = s.readings[currentMonth][currentParam];
-    const m = L.circleMarker([s.lat, s.lng], {
-      radius: 7,
-      fillColor: color(v),
+  stations.forEach(st => {
+    const v = st.readings[currentMonth][currentParam];
+    const m = L.circleMarker([st.lat, st.lng], {
+      radius: 8,
+      fillColor: getColor(v),
+      fillOpacity: 0.9,
       color: "#000",
-      fillOpacity: 0.9
-    }).addTo(map).on("click", () => selectStation(s));
+      weight: 1
+    }).addTo(map).on("click", () => selectStation(st));
+
     markers.push(m);
   });
 }
 
 // SELECT STATION
-function selectStation(s) {
-  selectedStation = s;
-  const r = s.readings[currentMonth];
+function selectStation(st) {
+  document.getElementById("stationName").textContent = st.name;
 
-  stationName.textContent = s.name;
+  document.getElementById("stationDetails").innerHTML =
+    `<p><strong>${currentParam.toUpperCase()}</strong>: ${st.readings[currentMonth][currentParam]}</p>`;
 
-  if (highlight) map.removeLayer(highlight);
-  highlight = L.circle([s.lat, s.lng], {
-    radius: 2500,
-    color: "#2563eb",
-    fillOpacity: 0.25
-  }).addTo(map);
-
-  map.setView([s.lat, s.lng], 12);
-
-  stationDetails.innerHTML = `
-    <div class="section-title">Water Parameters</div>
-    <div class="metric-grid">
-      ${metric("💧","DO", r.do, "Dissolved Oxygen (DO) measures the amount of oxygen available in water. Higher values indicate better conditions for aquatic life.")}
-      ${metric("🧪","pH", r.ph, "pH indicates how acidic or alkaline the water is. Ideal freshwater pH ranges from 6.5 to 8.5.")}
-      ${metric("🧬","BOD", r.bod, "Biochemical Oxygen Demand (BOD) measures the amount of oxygen required by microorganisms to decompose organic matter.")}
-      ${metric("🔥","COD", r.cod, "Chemical Oxygen Demand (COD) indicates the amount of oxygen required to chemically oxidize pollutants in water.")}
-      ${metric("🌫️","Turbidity", r.turbidity, "Turbidity measures water clarity. High turbidity reduces light penetration and affects aquatic ecosystems.")}
-      ${metric("🌡️","Temperature", r.temp, "Water temperature affects dissolved oxygen levels and aquatic organism metabolism.")}
-    </div>
-
-    <div class="section-title">Water Quality Trend</div>
-    <div class="trend-box"><canvas id="paramChart"></canvas></div>
-
-    <div class="section-title">Nutrients</div>
-    <div class="metric-grid">
-      ${metric("🌿","Nitrate", r.nitrate, "Nitrate is a nutrient that supports plant growth but can cause eutrophication at high levels.")}
-      ${metric("🧫","Phosphate", r.phosphate, "Phosphate is a nutrient that can trigger algal blooms when present in excess.")}
-    </div>
-
-    <div class="section-title">Nutrient Trend</div>
-    <div class="trend-box"><canvas id="nutrientChart"></canvas></div>
-  `;
-
-  renderCharts(s);
-
-  document.querySelectorAll("#stationList li").forEach(li =>
-    li.classList.toggle("active", li.textContent === s.name)
-  );
-}
-
-// CHARTS
-function renderCharts(s) {
-  if (paramChart) paramChart.destroy();
-  if (nutrientChart) nutrientChart.destroy();
-
-  paramChart = new Chart(document.getElementById("paramChart"), {
-    type: "line",
-    data: {
-      labels: s.readings.map(r => r.date),
-      datasets: [
-        { label:"DO", data:s.readings.map(r=>r.do) },
-        { label:"pH", data:s.readings.map(r=>r.ph) },
-        { label:"BOD", data:s.readings.map(r=>r.bod) },
-        { label:"COD", data:s.readings.map(r=>r.cod) },
-        { label:"Turbidity", data:s.readings.map(r=>r.turbidity) },
-        { label:"Temp", data:s.readings.map(r=>r.temp) }
-      ]
-    },
-    options:{ responsive:true, maintainAspectRatio:false }
+  document.querySelectorAll("#stationList li").forEach(li => {
+    li.classList.toggle("active", li.textContent === st.name);
   });
 
-  nutrientChart = new Chart(document.getElementById("nutrientChart"), {
-    type: "line",
-    data: {
-      labels: s.readings.map(r => r.date),
-      datasets: [
-        { label:"Nitrate", data:s.readings.map(r=>r.nitrate) },
-        { label:"Phosphate", data:s.readings.map(r=>r.phosphate) }
-      ]
-    },
-    options:{ responsive:true, maintainAspectRatio:false }
-  });
+  const dropdown = document.getElementById("stationDropdown");
+  if (dropdown) dropdown.value = st.id;
+
+  map.setView([st.lat, st.lng], 12);
 }
 
-// EVENTS
-parameterSelect.onchange =
-parameterSelectMobile.onchange = e => {
+// CONTROLS
+document.getElementById("parameterSelect").onchange = e => {
   currentParam = e.target.value;
   drawMarkers();
-  if (selectedStation) selectStation(selectedStation);
 };
 
-monthSelect.onchange =
-monthSelectMobile.onchange = e => {
+document.getElementById("monthSelect").onchange = e => {
   currentMonth = +e.target.value;
   drawMarkers();
-  if (selectedStation) selectStation(selectedStation);
 };
 
-// HELPERS
-function metric(icon, label, val, info = "") {
-  return `
-    <div class="metric-card" data-tooltip="${info}">
-      <div class="metric-icon">${icon}</div>
-      <small>${label}</small>
-      <strong>${val}</strong>
-    </div>
-  `;
+// COLOR SCALE
+function getColor(v) {
+  if (v >= 8) return "#3fa796";
+  if (v >= 6) return "#d9b44a";
+  return "#d14c4c";
 }
 
-
-function color(v){
-  if(v >= 8) return "#16a34a";
-  if(v >= 6) return "#f59e0b";
-  return "#dc2626";
-}
-// INFO PANEL TOGGLE 
-document.addEventListener("DOMContentLoaded", () => {
-  const infoBtn = document.getElementById("infoBtn");
-  const infoPanel = document.getElementById("infoPanel");
-  const infoClose = document.getElementById("infoClose");
-
-  if (!infoBtn || !infoPanel || !infoClose) return;
-
-  infoBtn.addEventListener("click", () => {
-    infoPanel.style.display =
-      infoPanel.style.display === "block" ? "none" : "block";
-  });
-
-  infoClose.addEventListener("click", () => {
-    infoPanel.style.display = "none";
-  });
-});
-
-
+// INFO PANEL
+document.getElementById("infoBtn").onclick = () =>
+  document.getElementById("infoPanel").style.display = "block";
+document.getElementById("infoClose").onclick = () =>
+  document.getElementById("infoPanel").style.display = "none";
