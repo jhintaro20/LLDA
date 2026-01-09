@@ -16,23 +16,26 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 .header-inner {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 1px;
 }
 
-.logo {
+.header-logo {
   width: 40px;
-  height: 40px;
-  background: #2563eb;
-  color: #fff;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: auto;
+  margin-right: 10px; 
+  display: block;
+}
+
+.logo img {
+  width: 150px;
+  height: auto;
+  display: block;
 }
 
 .header-text h1 {
@@ -256,6 +259,196 @@ body {
   .footer-credit {
     font-size: 10px;
     text-align: center;
+  }
+}
+/* ===== TOOLTIP FOR WATER PARAMETERS ===== */
+.metric-card {
+  position: relative;
+}
+
+.metric-card::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(12, 67, 104, 0.85);
+  color: #ffffff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  width: max-content;
+  max-width: 180px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 2000;
+  text-align: left;
+}
+
+.metric-card::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: rgba(30, 41, 59, 0.95) transparent transparent transparent;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.metric-card:hover::after,
+.metric-card:hover::before {
+  opacity: 1;
+}
+/* ===== INFO ICON ===== */
+/* ===== INFO ICON (FIXED IN HEADER TOP-RIGHT) ===== */
+.info-icon {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--primary);
+  user-select: none;
+}
+
+.info-icon:hover {
+  opacity: 0.8;
+}
+
+/* ===== INFO MODAL OVERLAY ===== */
+.info-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+/* ===== INFO BOX ===== */
+.info-box {
+  background: var(--bg-card);
+  width: 90%;
+  max-width: 420px;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  position: relative;
+}
+
+.info-box h2 {
+  margin-top: 0;
+  color: var(--primary);
+}
+
+.info-box h3 {
+  margin-bottom: 6px;
+  color: var(--primary);
+}
+
+.info-box p,
+.info-box li {
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.info-box ul {
+  padding-left: 18px;
+}
+
+.info-note {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ===== CLOSE BUTTON ===== */
+.info-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.info-close:hover {
+  color: var(--primary);
+}
+/* ===== INFO PANEL (NO BACKGROUND OVERLAY) ===== */
+.info-panel {
+  position: fixed;
+  top: 90px;
+  right: 16px;
+  width: 320px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-light, #d1e3df);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  z-index: 2000;
+  display: none;
+}
+
+.info-panel h2 {
+  margin-top: 0;
+  font-size: 16px;
+  color: var(--primary);
+}
+
+.info-panel h3 {
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--primary);
+}
+
+.info-panel p,
+.info-panel li {
+  font-size: 12px;
+  color: var(--text-main);
+}
+
+.info-panel ul {
+  padding-left: 18px;
+}
+
+.info-note {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Close button */
+.info-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.info-close:hover {
+  color: var(--primary);
+}
+
+/* Mobile adjustment */
+@media (max-width: 900px) {
+  .info-panel {
+    width: calc(100% - 24px);
+    right: 12px;
+    left: 12px;
   }
 }
 
