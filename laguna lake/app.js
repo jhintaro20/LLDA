@@ -1,177 +1,233 @@
-let map = L.map("map").setView([14.35, 121.25], 10);
-let markers = {};
-let chart;
-let currentParam = "do"; // default parameter
-let selectedStation = null;
+// MAP
+const map = L.map("map").setView([14.35, 121.25], 11);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+setTimeout(() => map.invalidateSize(), 300);
+window.addEventListener("resize", () => setTimeout(() => map.invalidateSize(), 200));
 
-// BASE MAP
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© WITM Project 2026"
-}).addTo(map);
-
-// LOAD BOUNDARY
-fetch("data/boundary.geojson")
-  .then(res => res.json())
-  .then(data => {
-    L.geoJSON(data, { style: { color: "blue", weight: 2, fillOpacity: 0.05 } }).addTo(map);
-  });
-
-// COLOR FUNCTION
-function getColor(value, param) {
-  if (param === "do") {
-    if (value >= 6) return "green";
-    if (value >= 4) return "orange";
-    return "red";
-  }
-  if (param === "bod") {
-    if (value <= 2) return "green";
-    if (value <= 5) return "orange";
-    return "red";
-  }
-  if (param === "fecal_coliform") {
-    if (value <= 50) return "green";
-    if (value <= 100) return "orange";
-    return "red";
-  }
-  if (param === "ph") {
-    if (value >= 6 && value <= 9) return "green";
-    return "red";
-  }
-  if (param === "tss") {
-    if (value <= 30) return "green";
-    if (value <= 100) return "orange";
-    return "red";
-  }
-  return "gray";
-}
-
-// CREATE POPUP
-function createPopup(station, reading) {
-  return `
-    <strong>${station.name}</strong><br>
-    DO: ${reading.do}<br>
-    pH: ${reading.ph}<br>
-    BOD: ${reading.bod}<br>
-    COD: ${reading.fecal_coliform}<br>
+function updateLegend() {
+  const legend = document.getElementById("legend");
+  legend.innerHTML = `
+    <div class="legend-item">
+      <span class="legend-dot good"></span> Good
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot moderate"></span> Moderate
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot poor"></span> Poor
+    </div>
   `;
 }
 
-// LOAD STATIONS
-fetch("data/station.json")
-  .then(res => res.json())
-  .then(data => {
-    const stationList = document.getElementById("stationList");
-    const paramSelect = document.getElementById("paramSelect");
+// call once on load
+updateLegend();
 
-    data.forEach(station => {
-      // Add marker
-      const latest = station.readings[station.readings.length - 1];
-      const marker = L.circleMarker([station.lat, station.lng], {
-        radius: 8,
-        color: getColor(latest[currentParam], currentParam),
-        fillOpacity: 0.8
-      }).addTo(map).bindPopup(createPopup(station, latest));
+// STATE
+let stations = [];
+let markers = [];
+let selectedStation = null;
+let highlight = null;
+let currentParam = "do";
+let currentMonth = 0;
+let paramChart = null;
+let nutrientChart = null;
 
-      markers[station.id] = { marker, station };
+// DROPDOWNS
+const paramHTML = `
+<option value="do">Dissolved Oxygen</option>
+<option value="ph">pH</option>
+<option value="bod">BOD</option>
+<option value="cod">COD</option>
+<option value="turbidity">Turbidity</option>
+<option value="temp">Temperature</option>
+`;
 
-      // Add station to sidebar list
-      const li = document.createElement("li");
-      li.textContent = station.name;
-      li.addEventListener("click", () => {
-        selectedStation = station;
-        map.setView([station.lat, station.lng], 12);
-        marker.openPopup();
-        updateChart(station);
-        updateTable(station);
-      });
-      stationList.appendChild(li);
-    });
+const monthHTML = `
+<option value="0">January 2025</option>
+<option value="1">February 2025</option>
+<option value="2">March 2025</option>
+`;
 
-    // PARAMETER SELECT EVENT
-    paramSelect.addEventListener("change", () => {
-      currentParam = paramSelect.value;
-      updateMarkers();
-      updateLegend();
-      if (selectedStation) updateChart(selectedStation);
-    });
-
-    addLegend();
-  });
-
-// UPDATE MARKERS COLOR
-function updateMarkers() {
-  Object.values(markers).forEach(({ marker, station }) => {
-    const latest = station.readings[station.readings.length - 1];
-    marker.setStyle({ color: getColor(latest[currentParam], currentParam) });
-    marker.setPopupContent(createPopup(station, latest));
-  });
-}
-
-// CHART FUNCTION
-function updateChart(station) {
-  const labels = station.readings.map(r => r.date);
-  const data = station.readings.map(r => r[currentParam]);
-
-  if (chart) chart.destroy();
-
-  chart = new Chart(document.getElementById("chart"), {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        label: `${currentParam.toUpperCase()} History`,
-        data,
-        borderWidth: 2,
-        tension: 0.3,
-        borderColor: "blue",
-        backgroundColor: "rgba(0,0,255,0.1)"
-      }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } } }
-  });
-}
-
-// TABLE FUNCTION
-function updateTable(station) {
-  const tbody = document.getElementById("tableBody");
-  tbody.innerHTML = "";
-  station.readings.forEach(r => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${r.date}</td>
-      <td>${r.do}</td>
-      <td>${r.bod}</td>
-      <td>${r.fecal_coliform}</td>
-      <td>${r.ph}</td>
-      <td>${r.tss}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+parameterSelect.innerHTML = paramHTML;
+monthSelect.innerHTML = monthHTML;
+parameterSelectMobile.innerHTML = paramHTML;
+monthSelectMobile.innerHTML = monthHTML;
 
 // LEGEND
-let legend;
-function addLegend() {
-  legend = L.control({ position: "bottomright" });
-  legend.onAdd = function () {
-    const div = L.DomUtil.create("div", "legend");
-    div.innerHTML = "<h4>Legend</h4>";
-    return div;
-  };
-  legend.addTo(map);
-  updateLegend();
+legend.innerHTML = `
+<div class="legend-item"><span class="legend-dot good"></span>Good</div>
+<div class="legend-item"><span class="legend-dot moderate"></span>Moderate</div>
+<div class="legend-item"><span class="legend-dot poor"></span>Poor</div>
+`;
+
+// LOAD BOUNDARY
+fetch("data/boundary.geojson")
+  .then(r => r.json())
+  .then(g => L.geoJSON(g, {
+    style: { color:"#2563eb", weight:2, fillOpacity:0.15 }
+  }).addTo(map));
+
+// LOAD STATIONS
+fetch("data/station.json")
+  .then(r => r.json())
+  .then(data => {
+    stations = data;
+    buildList();
+    buildMobileDropdown();
+    drawMarkers();
+  });
+
+// STATION LIST
+function buildList() {
+  stationList.innerHTML = "";
+  stations.forEach(s => {
+    const li = document.createElement("li");
+    li.textContent = s.name;
+    li.onclick = () => selectStation(s);
+    stationList.appendChild(li);
+  });
 }
 
-function updateLegend() {
-  if (!legend) return;
-  const div = document.querySelector(".legend");
-  let ranges = [];
+// MOBILE STATION DROPDOWN
+function buildMobileDropdown() {
+  stationSelect.innerHTML = "<option>Select station</option>";
+  stations.forEach(s => {
+    const o = document.createElement("option");
+    o.value = s.name;
+    o.textContent = s.name;
+    stationSelect.appendChild(o);
+  });
 
-  if (currentParam === "do") ranges = ["≥6 (green)", "4–5.9 (orange)", "<4 (red)"];
-  else if (currentParam === "bod") ranges = ["≤2 (green)", "3–5 (orange)", ">5 (red)"];
-  else if (currentParam === "fecal_coliform") ranges = ["≤50 (green)", "51–100 (orange)", ">100 (red)"];
-  else if (currentParam === "ph") ranges = ["6–9 (green)", "<6 or >9 (red)"];
-  else if (currentParam === "tss") ranges = ["≤30 (green)", "31–100 (orange)", ">100 (red)"];
+  stationSelect.onchange = () => {
+    const s = stations.find(x => x.name === stationSelect.value);
+    if (s) selectStation(s);
+  };
+}
 
-  div.innerHTML = `<h4>Legend (${currentParam.toUpperCase()})</h4>` + ranges.map(r => `<div>${r}</div>`).join("");
+// MARKERS
+function drawMarkers() {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  stations.forEach(s => {
+    const v = s.readings[currentMonth][currentParam];
+    const m = L.circleMarker([s.lat, s.lng], {
+      radius: 7,
+      fillColor: color(v),
+      color: "#000",
+      fillOpacity: 0.9
+    }).addTo(map).on("click", () => selectStation(s));
+    markers.push(m);
+  });
+}
+
+// SELECT STATION
+function selectStation(s) {
+  selectedStation = s;
+  const r = s.readings[currentMonth];
+
+  stationName.textContent = s.name;
+
+  if (highlight) map.removeLayer(highlight);
+  highlight = L.circle([s.lat, s.lng], {
+    radius: 2500,
+    color: "#2563eb",
+    fillOpacity: 0.25
+  }).addTo(map);
+
+  map.setView([s.lat, s.lng], 12);
+
+  stationDetails.innerHTML = `
+    <div class="section-title">Water Parameters</div>
+    <div class="metric-grid">
+      ${metric("💧","DO",r.do)}
+      ${metric("🧪","pH",r.ph)}
+      ${metric("🧬","BOD",r.bod)}
+      ${metric("🔥","COD",r.cod)}
+      ${metric("🌫️","Turbidity",r.turbidity)}
+      ${metric("🌡️","Temperature",r.temp)}
+    </div>
+
+    <div class="section-title">Water Quality Trend</div>
+    <div class="trend-box"><canvas id="paramChart"></canvas></div>
+
+    <div class="section-title">Nutrients</div>
+    <div class="metric-grid">
+      ${metric("🌿","Nitrate",r.nitrate)}
+      ${metric("🧫","Phosphate",r.phosphate)}
+    </div>
+
+    <div class="section-title">Nutrient Trend</div>
+    <div class="trend-box"><canvas id="nutrientChart"></canvas></div>
+  `;
+
+  renderCharts(s);
+
+  document.querySelectorAll("#stationList li").forEach(li =>
+    li.classList.toggle("active", li.textContent === s.name)
+  );
+}
+
+// CHARTS
+function renderCharts(s) {
+  if (paramChart) paramChart.destroy();
+  if (nutrientChart) nutrientChart.destroy();
+
+  paramChart = new Chart(document.getElementById("paramChart"), {
+    type: "line",
+    data: {
+      labels: s.readings.map(r => r.date),
+      datasets: [
+        { label:"DO", data:s.readings.map(r=>r.do) },
+        { label:"pH", data:s.readings.map(r=>r.ph) },
+        { label:"BOD", data:s.readings.map(r=>r.bod) },
+        { label:"COD", data:s.readings.map(r=>r.cod) },
+        { label:"Turbidity", data:s.readings.map(r=>r.turbidity) },
+        { label:"Temp", data:s.readings.map(r=>r.temp) }
+      ]
+    },
+    options:{ responsive:true, maintainAspectRatio:false }
+  });
+
+  nutrientChart = new Chart(document.getElementById("nutrientChart"), {
+    type: "line",
+    data: {
+      labels: s.readings.map(r => r.date),
+      datasets: [
+        { label:"Nitrate", data:s.readings.map(r=>r.nitrate) },
+        { label:"Phosphate", data:s.readings.map(r=>r.phosphate) }
+      ]
+    },
+    options:{ responsive:true, maintainAspectRatio:false }
+  });
+}
+
+// EVENTS
+parameterSelect.onchange =
+parameterSelectMobile.onchange = e => {
+  currentParam = e.target.value;
+  drawMarkers();
+  if (selectedStation) selectStation(selectedStation);
+};
+
+monthSelect.onchange =
+monthSelectMobile.onchange = e => {
+  currentMonth = +e.target.value;
+  drawMarkers();
+  if (selectedStation) selectStation(selectedStation);
+};
+
+// HELPERS
+function metric(icon,label,val){
+  return `<div class="metric-card">
+    <div class="metric-icon">${icon}</div>
+    <small>${label}</small>
+    <strong>${val}</strong>
+  </div>`;
+}
+
+function color(v){
+  if(v >= 8) return "#16a34a";
+  if(v >= 6) return "#f59e0b";
+  return "#dc2626";
 }
